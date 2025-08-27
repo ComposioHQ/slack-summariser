@@ -216,7 +216,7 @@ To test the above function as CLI, follow the steps below
    ```
 3. Run the agent
    ```bash
-   python slack_summeriser --user-id "viraj" --prompt "summerise last 5 messages from #general channel"
+   python slack_summeriser --user-id "default" --prompt "summerise last 5 messages from #general channel"
    ```
 
 ## Using Composio for managed auth and tools
