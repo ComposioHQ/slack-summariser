@@ -59,7 +59,7 @@ def create_agent(user_id: str, composio_client: Composio[LangchainProvider]):
 
 To authenticate your users with Composio you need an auth config for the given
 app, In this case you need one for slack. You can create and manage auth configs
-from the [dashboard](https://platform.composio.dev/?next_page=/auth-configs?create_auth_config=github).
+from the [dashboard](https://platform.composio.dev/?next_page=/auth-configs?create_auth_config=slack).
 Composio platform provides composio managed authentication for some apps to help
 you fast-track your development, `slack` being one of them. You can use these
 default auth configs for development, but for production you should always use
@@ -129,7 +129,6 @@ your users to your `slack` app. Let's implement a function to connect the users
 to your `slack` app via composio.
 
 ```python
-
 # Function to initiate a connected account
 def create_connection(composio_client: Composio[OpenAIProvider], user_id: str):
     """
@@ -159,7 +158,10 @@ def check_connected_account_exists(
     Check if a connected account exists for a given user id.
     """
     # Fetch all connected accounts for the user
-    connected_accounts = composio_client.connected_accounts.list(user_ids=[user_id])
+    connected_accounts = composio_client.connected_accounts.list(
+        user_ids=[user_id]
+        toolkit_slugs=["SLACK"],
+    )
 
     # Check if there's an active connected account
     for account in connected_accounts.items:
