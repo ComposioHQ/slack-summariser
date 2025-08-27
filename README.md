@@ -171,7 +171,54 @@ def check_connected_account_exists(
     return False
 ```
 
-## Putting everthing together
+## Modifiers
+
+In the current setup, we are expanding too much unnecessary tokens because response
+from `SLACK_FETCH_CONVERSATION_HISTORY` tool call contains too much unnecessary
+information. This can be fixed using `after_execute` modifier. An after execute
+modifier is called after a tool execution is complete, here you can process
+and modify the response object to make it more easy to consume for your agent.
+
+```python
+from composio import after_execute
+from composio.types import ToolExecutionResponse
+
+
+@after_execute(tools=["SLACK_FETCH_CONVERSATION_HISTORY"])
+def clean_conversation_history(
+    tool: str,
+    toolkit: str,
+    response: ToolExecutionResponse,
+) -> ToolExecutionResponse:
+    """
+    Clean the conversation history.
+    """
+    if not response["data"]["ok"]:
+        return response
+
+    try:
+        response["data"]["messages"] = [
+            {"user": message["user"], "text": message["text"]}
+            for message in response["data"]["messages"]
+            if message["type"] == "message"
+        ]
+    except KeyError:
+        pass
+
+    return response
+```
+
+To register modifiers, include them in the `composio.tools.get` call.
+
+```python
+tools = composio_client.tools.get(
+    user_id=user_id,
+    toolkits=[SLACK_TOOLKIT],
+    modifiers=[clean_conversation_history],
+)
+```
+
+## Putting everything together
 
 So far, we have created an agent with ability to interact with your `slack` 
 workspace using the `composio` SDK, functions to manage connected accounts
